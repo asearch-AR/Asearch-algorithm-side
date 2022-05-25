@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+service ASearchSimilarity {
+    // Sends a greeting
+    rpc ReRank (RankRequest) returns (RankResponse) {}
+    rpc TextSimilarty (SimRequest) returns (SimResponse) {}
+    rpc GetEmbedding (EmbedRequest) returns (EmbedResponse) {}
+}
+
+message RankRequest {
+    string query = 1;
+    map<string, string> docs = 2;
+}
+
+message RankResponse {
+    map<string, double> result = 1;
+    
+}
+
+message SimRequest {
+    string query = 1;
+    string doc = 2;
+}
+
+message SimResponse {
+    double sim_score = 1;
+
+}
+
+message EmbedRequest {
+    repeated string texts = 1;
+}
+
+message EmbedResponse {
+    repeated Embedding embeddings = 1;
+}
+
+message Embedding {
+    repeated double embedding = 1;
+}
