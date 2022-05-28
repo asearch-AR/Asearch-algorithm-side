@@ -34,19 +34,24 @@ class Inference:
         res = res.detach().cpu().numpy()
         return res[0][1]
 
-    def rank(self, query, docs:dict):
-        doc_ids = list(docs.keys())
-        docs = list(docs.values())
-        new_text_set = [*docs, query]
+    def rank(self, query, docs):
+        doc_ids = [i['doc_id'] for i in docs]
+        titles = [i['title'] for i in docs]
+        contents = [i['content'] for i in docs]
+        nums = len(titles)
+        new_text_set = [*titles, *contents, query]
         qnd_embeddings = self.sentence_embedding.get_emebeddings(new_text_set)
         query_embed, doc_embeds = qnd_embeddings[-1], qnd_embeddings[:-1]
         features = [query_embed+doc_embed for doc_embed in doc_embeds]
         with torch.no_grad():
             result = self.model(torch.Tensor(np.array(features)))
         result = result.detach().cpu().numpy()
-        result = [[idx, score[1]] for idx, score in zip(doc_ids, result)]
-        result = sorted(result, key=lambda x: x[-1], reverse=True)
+        title_result, content_result = result[:nums], result[nums:]
+        result = [[idx, title_score[1], content_score[1]] for idx, title_score, content_score in zip(doc_ids, title_result, content_result)]
+        result = [[item[0], max(item[1], item[2])] if max(item[1], item[2])>=0.85 else [item[0], (item[1]+item[2])/2] for item in result]
+        result = sorted(result, key=lambda x: x[1], reverse=True)
         result = {item[0]: item[1] for item in result}
+        print(result)
         return result
 
 
@@ -54,6 +59,7 @@ if __name__ == "__main__":
     inferece = Inference()
     query = "对上海新冠防疫两措施的法律意见"
     content = {
+        0: "对上海新冠防疫两措施的法律意见",
         1: "睡在上海浦东机场一个月",
         2: "当我决定离开上海",
         3: "童之伟：对上海新冠防疫两措施的法律意见。已披露的上海官方人员与相关居民的对话视频、音频显示，上海新冠病毒防疫采取的两项措施引起的事态非常严重，在市民中反应也很强烈，很可能造成某种法制灾难，特发表法律意见如下，以为各方处事的参考。",

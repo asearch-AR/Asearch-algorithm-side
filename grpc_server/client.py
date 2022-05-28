@@ -16,6 +16,7 @@ if __name__ == '__main__':
             '7': "从北大退休后，钱理群投身中学教育，试图“改变人心”，",
             '8': "他说，—切不能为应试教育服务的教育根本无立足之地。"
         }
+        docs = [{'doc_id': k, 'title': '烧烤', 'content': v} for k, v in docs.items()]
         rsp: asearch_pb2.RankResponse = stub.ReRank(asearch_pb2.RankRequest(query=query, docs=docs))
         print(rsp.result)
 

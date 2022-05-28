@@ -9,7 +9,7 @@ service ASearchSimilarity {
 
 message RankRequest {
     string query = 1;
-    map<string, string> docs = 2;
+    repeated DocStruct docs = 2;
 }
 
 message RankResponse {
@@ -37,4 +37,10 @@ message EmbedResponse {
 
 message Embedding {
     repeated double embedding = 1;
+}
+
+message DocStruct {
+    string doc_id = 1;
+    string title = 2;
+    string content = 3;
 }
