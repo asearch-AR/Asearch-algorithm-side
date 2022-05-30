@@ -8,7 +8,7 @@ sys.path.append(join(dirname(__file__), '../..'))
 import json
 import jieba 
 import pandas as pd
-from tqdm import trange
+from tqdm import trange, tqdm
 from config import PATH_ARGS
 from sklearn.utils import shuffle
 from model.simbert import get_emebeddings 
@@ -17,15 +17,18 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 
 def extra_keywords(corpus):
+    corpus_len = sum([len(i.split()) for i in corpus])/len(corpus)
+    topn = 3 if corpus_len < 15 else 5
     tfidf_vec = TfidfVectorizer()
     tfidf_matrix = tfidf_vec.fit_transform(corpus)
     feature_names = tfidf_vec.get_feature_names()
     corpus_keywords = []
-    for i in tfidf_matrix.toarray():
+    for i in tqdm(tfidf_matrix, desc='extra_keywords'):
+        i = i.toarray()[0]
         dict_i = {j: k for j, k in zip(feature_names, i)}
-        item_top_keywords = sorted(dict_i.items(), key=lambda x: x[1], reverse=True)[:3]
-        item_top_keywords = [i[0] for i in item_top_keywords]
-        corpus_keywords.append(''.join(item_top_keywords))
+        item_top_keywords = sorted(dict_i.items(), key=lambda x: x[1], reverse=True)[:topn]
+        item_top_keywords = ''.join([i[0] for i in item_top_keywords])
+        corpus_keywords.append(item_top_keywords)
     return corpus_keywords
 
 def process_summary_data():
@@ -67,22 +70,22 @@ def process_summary_data():
     samples = list(zip(*samples))
     
     # keywords match
-    corpus = [' '.join(jieba.lcut(i[1])) for i in samples]
-    corpus_keywords = extra_keywords(corpus)
-    query = [' '.join(jieba.lcut(i[0])) for i in samples]
-    query_keywords = extra_keywords(query)
+    # corpus = [' '.join(jieba.lcut(i[1])) for i in samples]
+    # corpus_keywords = extra_keywords(corpus)
+    # query = [' '.join(jieba.lcut(i[0])) for i in samples]
+    # query_keywords = extra_keywords(query)
 
-    aug_samples = []
-    for item, c, q in zip(samples, corpus_keywords, query_keywords):
-        aug_samples.append(item)
-        aug_samples[-1][0] = c
-        aug_samples.append(item)
-        aug_samples[-1][0] = q
+    # aug_samples = []
+    # for item, c, q in zip(samples, corpus_keywords, query_keywords):
+    #     aug_samples.append(list(item))
+    #     aug_samples[-1][0] = c
+    #     aug_samples.append(list(item))
+    #     aug_samples[-1][0] = q
     
-    samples += aug_samples
+    # samples += aug_samples
 
     samples = pd.DataFrame(samples, columns=['summary', 'content', 'label'])
-    sample_length = len(samples)/2
+    sample_length = int(len(samples)/2)
 
     lcqmc_data_path = join(PATH_ARGS.MAIN_DATA_DIR, 'lcqmc', 'train.tsv')
     lcqmc_data = pd.read_csv(lcqmc_data_path, sep='\t', names=['summary', 'content', 'label'])
