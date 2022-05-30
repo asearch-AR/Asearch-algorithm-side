@@ -17,7 +17,8 @@ class SentenceEmbedding:
         if not isinstance(texts, list):
             texts = list(texts)
         embeddings = []
-        for st_i in trange(0, len(texts), batch_size, desc='get_embeddings'):
+        # for st_i in trange(0, len(texts), batch_size, desc='get_embeddings'):
+        for st_i in range(0, len(texts), batch_size):
             temp_texts = texts[st_i: st_i+64]
             temp_embeddings = self.model.encode(temp_texts)
             temp_embeddings = [list(i) for i in temp_embeddings]
