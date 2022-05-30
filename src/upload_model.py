@@ -14,5 +14,8 @@ class UploadModel:
         
     def download_model(self, model_name):
         model = self.r.get(model_name)
-        model = pkl.loads(model)
-        return model
+        if model:
+            model = pkl.loads(model)
+            return model
+        else:
+            return None
