@@ -18,7 +18,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "true"
 join = os.path.join
 
 class args:
-    dataset_name = 'LCSTS_new'
+    dataset_name = 'mix'
     model_name = 'cfdnn'
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     epochs = 30
@@ -29,9 +29,9 @@ class args:
     random_states = 42
     accumulation_steps = 2
     dataloader_num_jobs = 1
-    output_model_path = f"/mnt/disk/hdd1/arsearch/data/model/{dataset_name}/{model_name}_{str(int(time()))}.pt"
-    train_data_path = f'/mnt/disk/hdd1/arsearch/data/data/{dataset_name}/train.tsv'
-    feature_path = f'/mnt/disk/hdd1/arsearch/data/features/{dataset_name}'
+    output_model_path = f"/mnt/disk/hdd1/Asearch-algorithm-side/data/model/{dataset_name}/{model_name}_{str(int(time()))}.pt"
+    train_data_path = f'/mnt/disk/hdd1/Asearch-algorithm-side/data/data/train.tsv'
+    feature_path = f'/mnt/disk/hdd1/Asearch-algorithm-side/data/features/{dataset_name}'
     save_weights_only = True
 
 class CustomDataset:
@@ -70,6 +70,7 @@ def train():
     # 1. Build a dataset
     ## load data
     dfx = pd.read_csv(args.train_data_path, error_bad_lines=False, sep='\t', header=0).fillna("none")
+    dfx = dfx.iloc[:30000]
     # dfx = pd.read_excel(args.train_data_path, sheet_name='Sheet1', engine='openpyxl').fillna("none")
     dfx.columns = ['query', 'doc', 'label']
     dfx['label']= dfx['label'].astype('int')

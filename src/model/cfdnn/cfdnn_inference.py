@@ -21,9 +21,14 @@ from time import time
 class Inference:
     def __init__(self) -> None:
         self.model = Net(768, 0.2)
-        model_path = join(PATH_ARGS.MODEL_DATA_DIR, 'LCSTS_new/cfdnn_1653301196.pt')
-        self.model.load_state_dict(torch.load(model_path))
-        self.model.eval()
+        model_path = join(PATH_ARGS.MODEL_DATA_DIR, 'LCSTS_new/cfdnn_1653301196.pkl')
+        if os.path.exists(model_path):
+            self.model = pkl.load(open(model_path, 'rb'))
+        else:
+            pt_model_path = join(PATH_ARGS.MODEL_DATA_DIR, 'LCSTS_new/cfdnn_1653301196.pt')
+            self.model.load_state_dict(torch.load(pt_model_path))
+            self.model.eval()
+            pkl.dump(self.model, open(model_path, 'wb'))
         self.sentence_embedding = SentenceEmbedding()
 
     def inference_sample(self,query, doc):

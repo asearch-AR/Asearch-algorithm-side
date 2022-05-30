@@ -21,9 +21,14 @@ from time import time
 class Inference:
     def __init__(self) -> None:
         self.model = Net(1536, 400, 2)
-        model_path = join(PATH_ARGS.MODEL_DATA_DIR, 'sim_model_0421.pt')
-        self.model.load_state_dict(torch.load(model_path))
-        self.model.eval()
+        model_path = join(PATH_ARGS.MODEL_DATA_DIR, 'sim_model.pkl')
+        if os.path.exists(model_path):
+            self.model = pkl.load(open(model_path, 'rb'))
+        else:
+            pt_model_path = join(PATH_ARGS.MODEL_DATA_DIR, 'sim_model.pt')
+            self.model.load_state_dict(torch.load(pt_model_path))
+            self.model.eval()
+            pkl.dump(self.model, open(model_path, 'wb'))
         self.sentence_embedding = SentenceEmbedding()
 
     def inference_sample(self,query, doc):
@@ -70,6 +75,7 @@ if __name__ == "__main__":
         9: "轮回之门。说不出来，肯定在哪里见过。“这是轮回之门！”柳无邪险些发出惊呼。轮回之门跟大轮回术，完全是两回事。修炼大轮回术，可以召唤出来轮回之路，斩断前世今生。而轮回之门，是镇守在轮回之路上的大门，谁能掌握轮回之门，等于掌握了轮回之路。以后面对神子，就算他施展大轮回法术，凭靠轮回之门，就能将其碾压。想要进入轮回，必须要经过这道门户。眼前看到的这座门户，只是一道虚影，并非真正的轮回之门。从记忆中得知，轮回之门早已消失亿万年，为何这里出现一道虚影，难道这里是一座轮回世界？短短半吸时间，柳无邪大脑出现无数信息。没有任何犹豫，一个纵射，消失的无影无踪，进入轮回之门。纳兰奇文等人迅速赶到，还是晚了一步，被柳无邪逃进去了。“我们怎么办？”纳兰秋禾一脸的愤怒之色，只有杀了柳无邪，她的道心才能圆满。这几日被柳无邪的意志，折磨的痛不欲生，每次闭上眼睛，柳无邪都会化身邪魔，钻入她的魂海。“追！”桃花门门主第一个追进去，丧子之痛，不共戴天，岂能让柳无邪活着离开千岛海域。越来越多的修士进入轮回之门。眨眼间的功夫，超过几万人进入其中。轮回之门依旧漂浮在空中，不过门户越来越不稳，出现晃动的迹象。千岛海域出现海市蜃楼的消息，越传越远，附近的岛屿修士，全部赶来。柳无邪进入轮回之门，仿佛进入另外一个世界。无尽的洪荒之力，充斥他的身体。“好古老的世界！”柳无邪进来之后，一个纵射，消失的无影无踪，以免被后面的人发现。大批修士进来，分散四周，寻找天地宝物。就在柳无邪进入不久，一名莽头人身的影子出现在海面上。“王，你为何坚持要找这个人？”从水底下又钻出来一尊恐怖的身体，似人非人，似妖非妖，长相有七分像人。““只有此人，才能帮助我们巫族复兴！”",
         10: "对上海新冠防疫两措施的法律意见。已披露的上海官方人员与相关居民的对话视频、音频显示，上海新冠病毒防疫采取的两项措施引起的事态非常严重，在市民中反应也很强烈，很可能造成某种法治灾难，特发表法律意见如下，以为各方处事的参考。"
     }
+    content = [{'doc_id': k, 'title': v, 'content': v} for k, v in content.items()]
     res = inferece.rank(query, content)
     print(res)
 

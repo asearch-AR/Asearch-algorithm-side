@@ -4,6 +4,7 @@ join = os.path.join
 dirname = os.path.dirname
 sys.path.append(join(dirname(__file__), '..'))
 sys.path.append(join(dirname(__file__), '../..'))
+sys.path.append(join(dirname(__file__), '../../..'))
 from config import PATH_ARGS
 
 import torch
@@ -23,7 +24,7 @@ from sklearn.model_selection import train_test_split
 def process_data(data_path):
     sentence_embedding = SentenceEmbedding()
     data = pd.read_csv(data_path, sep='\t', header=0)
-    data = shuffle(data, random_state=0)
+    data = shuffle(data, random_state=0).iloc[:40000]
     summary_embeds, content_embeds = [], []
     batch_size = 256
     for batch_idx in trange(0, len(data), batch_size, desc='get_emebeddings'):
@@ -72,13 +73,13 @@ def train_model(X, Y, model, model_path):
             torch.save(model.state_dict(), model_path)
 
 if __name__ == "__main__":
-    input_path = join(PATH_ARGS.MAIN_DATA_DIR, 'LCSTS_new', 'train.tsv')
+    input_path = join(PATH_ARGS.MAIN_DATA_DIR, 'train.tsv')
     process_data(input_path)
-    feature_path = join(PATH_ARGS.MAIN_DATA_DIR, 'LCSTS_new', 'train.pkl')
+    feature_path = join(PATH_ARGS.MAIN_DATA_DIR, 'train.pkl')
     feature = pkl.load(open(feature_path, 'rb'))
     X, Y = feature
     input_dim = len(X[0])
     print(input_dim)
     model = Net(input_dim, 400, 2)
-    model_path = join(PATH_ARGS.MODEL_DATA_DIR, 'sim_model_0421.pt')
+    model_path = join(PATH_ARGS.MODEL_DATA_DIR, 'sim_model.pt')
     train_model(X, Y, model, model_path)
