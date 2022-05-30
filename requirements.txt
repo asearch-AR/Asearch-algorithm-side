@@ -10,3 +10,4 @@ bert4keras==0.7.7
 tensorflow==1.14.0
 Keras==2.3.1
 grpcio-tools
+redis
